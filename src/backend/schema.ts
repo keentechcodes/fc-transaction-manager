@@ -14,6 +14,9 @@ export const transactionInputSchema = z.object({
 			/^\d{4}-\d{4}-\d{4}$/,
 			"Account number must be in XXXX-XXXX-XXXX format",
 		),
-	accountHolderName: z.string().min(1, "Account holder name is required"),
+	accountHolderName: z
+		.string()
+		.min(1, "Account holder name is required")
+		.refine((v) => !/^[=+\-@]/.test(v), "Name cannot start with =, +, -, or @"),
 	amount: z.number().positive("Amount must be a positive number"),
 });
