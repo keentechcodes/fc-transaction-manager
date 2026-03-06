@@ -3,7 +3,7 @@
 	"scripts": {
 		"dev": "concurrently \"bun run dev:api\" \"bun run dev:ui\"",
 		"dev:api": "bun --hot run src/backend/index.ts",
-		"dev:ui": "cd frontend && bun run dev",
+		"dev:ui": "cd src/frontend && bun run dev",
 		"check": "biome check .",
 		"format": "biome check --write ."
 	},
