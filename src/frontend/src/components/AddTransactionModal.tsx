@@ -39,8 +39,16 @@ export function AddTransactionModal() {
 		}
 	}
 
+	function formatAccountNumber(raw: string): string {
+		const digits = raw.replace(/\D/g, "").slice(0, 12);
+		const parts = [digits.slice(0, 4), digits.slice(4, 8), digits.slice(8, 12)];
+		return parts.filter(Boolean).join("-");
+	}
+
 	function handleChange(field: string, value: string) {
-		setForm((prev) => ({ ...prev, [field]: value }));
+		const formatted =
+			field === "accountNumber" ? formatAccountNumber(value) : value;
+		setForm((prev) => ({ ...prev, [field]: formatted }));
 		setFieldErrors((prev) => {
 			if (!prev[field]) return prev;
 			const next = { ...prev };
@@ -109,6 +117,8 @@ export function AddTransactionModal() {
 						<Label htmlFor="accountNumber">Account Number</Label>
 						<Input
 							id="accountNumber"
+							placeholder="XXXX-XXXX-XXXX"
+							maxLength={14}
 							value={form.accountNumber}
 							onChange={(e) => handleChange("accountNumber", e.target.value)}
 							aria-invalid={!!fieldErrors.accountNumber}
