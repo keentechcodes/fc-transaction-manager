@@ -22,7 +22,7 @@ function ensureFileExists(): void {
 	mkdirSync("./data", { recursive: true });
 	const file = Bun.file(CSV_PATH);
 	if (!file.size) {
-		Bun.write(CSV_PATH, `${CSV_HEADERS}\n`);
+		Bun.write(CSV_PATH, `${CSV_HEADERS}\r\n`);
 	}
 }
 
@@ -74,10 +74,10 @@ export async function writeTransaction(
 					tx.status,
 				],
 			],
-			{ header: false },
+			{ header: false, newline: "\r\n" },
 		);
 
-		await appendFile(CSV_PATH, `${csvRow}\n`);
+		await appendFile(CSV_PATH, `${csvRow}\r\n`);
 	});
 
 	writeLock = writeOp.catch(() => {});
