@@ -4,7 +4,7 @@
 		"dev": "concurrently \"bun run dev:api\" \"bun run dev:ui\"",
 		"dev:api": "bun --hot run src/backend/index.ts",
 		"dev:ui": "cd src/frontend && bun run dev",
-		"check-types": "bun run check-types:api && bun run check-types:ui && bun -e \"console.log('No type errors found')\"",
+		"check-types": "bun run check-types:api; API_EXIT=$?; bun run check-types:ui; UI_EXIT=$?; if [ $API_EXIT -ne 0 ] || [ $UI_EXIT -ne 0 ]; then bun -e \"console.log('Type errors found')\"; exit 1; fi; bun -e \"console.log('No type errors found')\"",
 		"check-types:api": "bun -e \"console.log('Type checking backend...')\" && bunx tsc --noEmit -p tsconfig.json",
 		"check-types:ui": "bun -e \"console.log('Type checking frontend...')\" && bunx tsc -b src/frontend/tsconfig.app.json src/frontend/tsconfig.node.json",
 		"check": "biome check .",
