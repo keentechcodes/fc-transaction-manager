@@ -170,7 +170,7 @@ After a POST, we invalidate the `["transactions"]` query key. This triggers a ba
 Bun's `routes` doesn't support middleware yet. Using `fetch` with a `withCors()` helper keeps CORS handling in one place and makes adding routes straightforward.
 
 **Concurrent write safety:**
-Writes are serialized through a promise chain (in-memory mutex). This prevents interleaved CSV appends from simultaneous POST requests.
+Writes are serialized through a mutex. This prevents interleaved CSV appends/deletes from simultaneous requests.
 
 ## Known Limitations
 

@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { appendFile } from "node:fs/promises";
+import { Mutex } from "async-mutex";
 import Papa from "papaparse";
 import type { Transaction, TransactionInput } from "./types";
 import { VALID_STATUSES } from "./types";
@@ -8,8 +9,7 @@ const CSV_PATH = "./data/transactions.csv";
 const CSV_HEADERS =
 	"Transaction Date,Account Number,Account Holder Name,Amount,Status";
 
-// --- Write mutex ---
-let writeLock = Promise.resolve();
+const writeMutex = new Mutex();
 
 function randomStatus(): Transaction["status"] {
 	const index = Math.floor(Math.random() * VALID_STATUSES.length);
@@ -46,8 +46,8 @@ export async function readTransactions(): Promise<Transaction[]> {
 			transactionDate: row["Transaction Date"] ?? "",
 			accountNumber: row["Account Number"] ?? "",
 			accountHolderName: row["Account Holder Name"] ?? "",
-			amount: parseFloat(row.Amount ?? "0"),
-			status: row.Status as Transaction["status"],
+			amount: parseFloat(row["Amount"] ?? "0"),
+			status: row["Status"] as Transaction["status"],
 		}))
 		.filter((tx) => {
 			if (Number.isNaN(tx.amount)) return false;
@@ -60,8 +60,8 @@ export async function writeTransaction(
 	input: TransactionInput,
 ): Promise<Transaction> {
 	const tx: Transaction = { ...input, status: randomStatus() };
-
-	const writeOp = writeLock.then(async () => {
+	const release = await writeMutex.acquire();
+	try {
 		ensureFileExists();
 
 		const csvRow = Papa.unparse(
@@ -78,10 +78,9 @@ export async function writeTransaction(
 		);
 
 		await appendFile(CSV_PATH, `${csvRow}\r\n`);
-	});
-
-	writeLock = writeOp.catch(() => {});
-	await writeOp;
+	} finally {
+		release();
+	}
 
 	return tx;
 }
