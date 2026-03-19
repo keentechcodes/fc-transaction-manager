@@ -1,4 +1,13 @@
 import { createTransaction, getTransactions } from "./handlers/transactions";
+import { ensureFileExists } from "./storage";
+
+try {
+	await ensureFileExists();
+	console.log("Storage initialized");
+} catch (error) {
+	console.error("Failed to initialize storage:", error);
+	process.exit(1);
+}
 
 const CORS_HEADERS: Record<string, string> = {
 	"Access-Control-Allow-Origin": "http://localhost:5173",

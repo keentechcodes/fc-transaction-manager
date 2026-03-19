@@ -18,17 +18,15 @@ function randomStatus(): Transaction["status"] {
 	return status;
 }
 
-function ensureFileExists(): void {
+export async function ensureFileExists(): Promise<void> {
 	mkdirSync("./data", { recursive: true });
 	const file = Bun.file(CSV_PATH);
 	if (!file.size) {
-		Bun.write(CSV_PATH, `${CSV_HEADERS}\r\n`);
+		await Bun.write(CSV_PATH, `${CSV_HEADERS}\n`);
 	}
 }
 
 export async function readTransactions(): Promise<Transaction[]> {
-	ensureFileExists();
-
 	const csvString = await Bun.file(CSV_PATH).text();
 	const result = Papa.parse<Record<string, string>>(csvString, {
 		header: true,
@@ -62,8 +60,6 @@ export async function writeTransaction(
 	const tx: Transaction = { ...input, status: randomStatus() };
 	const release = await writeMutex.acquire();
 	try {
-		ensureFileExists();
-
 		const csvRow = Papa.unparse(
 			[
 				[
@@ -74,10 +70,10 @@ export async function writeTransaction(
 					tx.status,
 				],
 			],
-			{ header: false, newline: "\r\n" },
+			{ header: true, newline: "\n" },
 		);
 
-		await appendFile(CSV_PATH, `${csvRow}\r\n`);
+		await appendFile(CSV_PATH, `${csvRow}\n`);
 	} finally {
 		release();
 	}

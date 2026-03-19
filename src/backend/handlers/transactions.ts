@@ -34,6 +34,7 @@ export async function createTransaction(req: Request): Promise<Response> {
 
 	try {
 		const tx = await writeTransaction(parsed.data);
+		console.log(tx);
 		return Response.json(tx, { status: 201 });
 	} catch (error) {
 		return Response.json(
